@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <style>
+
+        * {
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        div#bolas, 
+        div#palpite {
+            display: flex;
+            flex-wrap: wrap;
+            max-width: 600px;
+            height: 300px;
+            overflow-x: auto;
+            gap: 10px;
+            padding: 10px;
+            max-width: 600px;
+            width: 100%;
+            align-items: center;
+            justify-content: space-evenly;
+        }
+
+        div#palpite {
+            height: auto;
+            justify-content: center;
+        }
+
+        div#bolas div, 
+        div#palpite div {
+            width: 30px;
+            height: 30px;
+            background-color: white;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        div#bolas div:hover {
+            background-color: lightgreen;
+            color: green;
+        }
+
+    </style>
+
+</head>
+<body>
+
+    <div class="app">
+
+        <h1 class="title">Palpite MEGA-SENA</h1>
+
+        <div class="qnt-bolas" id="qnt-bolas">
+            <h2>Quantidade num. aposta</h2>
+            <button>+</button>
+            <input type="number" value="6" min="6" required readonly>
+            <button>-</button>
+        </div>
+
+        <div class="palpite" id="palpite"></div>
+
+        <div class="bolas" id="bolas"></div>
+
+    </div>
+
+    <script>
+
+        const bolas = document.querySelector("div#bolas");
+        const palpite_view = document.querySelector("div#palpite");
+        const palpite_hide = [];
+
+        for ( let i=1 ; i <= 60; i++ ) {
+            const bola = document.createElement("div");
+            bola.className = "estilo-bola";
+
+            bola.innerText = i;
+
+            bolas.appendChild(bola);
+
+            bola.addEventListener("click",()=>{addBolaPalpite(bola)});
+
+            bola.cloneNode()
+        }
+
+        function addBolaPalpite(element) {
+
+            
+            const num = Number(element.innerText);
+
+            const bola_selecionada = element.cloneNode(true);
+            palpite_view.appendChild(bola_selecionada);
+
+            palpite.push(num);
+
+        }
+
+    </script>
+    
+</body>
+</html>
