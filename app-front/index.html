@@ -1,110 +1,130 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-
-    <style>
-
-        * {
-            margin: 0;
-            box-sizing: border-box;
-        }
-
-        div#bolas, 
-        div#palpite {
-            display: flex;
-            flex-wrap: wrap;
-            max-width: 600px;
-            height: 300px;
-            overflow-x: auto;
-            gap: 10px;
-            padding: 10px;
-            max-width: 600px;
-            width: 100%;
-            align-items: center;
-            justify-content: space-evenly;
-        }
-
-        div#palpite {
-            height: auto;
-            justify-content: center;
-        }
-
-        div#bolas div, 
-        div#palpite div {
-            width: 30px;
-            height: 30px;
-            background-color: white;
-            border-radius: 50%;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-        }
-
-        div#bolas div:hover {
-            background-color: lightgreen;
-            color: green;
-        }
-
-    </style>
+    <link rel="stylesheet" href="css/style.css">
+    <title>Simulador de palpite</title>
 
 </head>
+
 <body>
 
     <div class="app">
 
-        <h1 class="title">Palpite MEGA-SENA</h1>
+        <h1 class="title">Simulador de palpite</h1>
 
-        <div class="qnt-bolas" id="qnt-bolas">
-            <h2>Quantidade num. aposta</h2>
-            <button>+</button>
-            <input type="number" value="6" min="6" required readonly>
-            <button>-</button>
+        <div class="palpite">
+            <h2 class="title">Meu palpite <span id="numeros-palpite"></span></h2>
+            <div class="numeros"></div>
         </div>
 
-        <div class="palpite" id="palpite"></div>
+        <div class="globo">
+            <h2 class="title">Globo</h2>
+            <div class="bolas" id="bolas">
+                <div class="numeros"></div>
+            </div>
+        </div>
 
-        <div class="bolas" id="bolas"></div>
+        <button class="btn-consultar">Consultar</button>
 
     </div>
 
     <script>
 
-        const bolas = document.querySelector("div#bolas");
-        const palpite_view = document.querySelector("div#palpite");
-        const palpite_hide = [];
+        const bolas = document.querySelector("#bolas > .numeros");
+        const palpite = document.querySelector("div.palpite > .numeros");
+        const numerosPalpiteView = document.getElementById("numeros-palpite");
+        let numerosPalpite = [];
 
-        for ( let i=1 ; i <= 60; i++ ) {
+        // cria uma nova instância de observador
+        var observer = new MutationObserver(function (mutations) {
+
+            validarPalpite(mutations[0].target);
+
+        });
+
+        // configuração do observador:
+        var config = { attributes: true, childList: true, characterData: true };
+
+        observer.observe(palpite, config);
+
+        // Criando as bolas no globo
+        for (let i = 1; i <= 60; ++i) {
+            const numStr = i.toString().padStart(2, '0');
+
             const bola = document.createElement("div");
-            bola.className = "estilo-bola";
-
-            bola.innerText = i;
-
+            bola.id = `bola_${numStr}`;
+            bola.innerText = numStr;
+            bola.title = numStr;
+            bola.className = "bola";
+            bola.addEventListener("click", () => { selBolaPalpite(bola); bola.style.display = "none" });
             bolas.appendChild(bola);
-
-            bola.addEventListener("click",()=>{addBolaPalpite(bola)});
-
-            bola.cloneNode()
         }
 
-        function addBolaPalpite(element) {
+        // Adicionando bola ao palpite
+        function selBolaPalpite(element) {
+            const num = Number(element.title);
+            const bolaPalpite = element.cloneNode(true);
 
-            
-            const num = Number(element.innerText);
+            bolaPalpite.addEventListener("click", () => { remBolaPalpite(bolaPalpite) });
 
-            const bola_selecionada = element.cloneNode(true);
-            palpite_view.appendChild(bola_selecionada);
+            palpite.appendChild(bolaPalpite);
 
-            palpite.push(num);
+            numerosPalpite.push(num);
 
+            numerosPalpiteView.innerHTML = " > " + numerosPalpite.toString();
+        }
+
+        // Removendo bola do palpite
+        function remBolaPalpite(element) {
+            const bolaGlobo = document.querySelector(`div.globo > div#bolas div#${element.id}`);
+            element.remove();
+
+            bolaGlobo.style.display = "flex";
+
+            numerosPalpite = numerosPalpite.filter((item) => item !== Number(bolaGlobo.title));
+
+            numerosPalpiteView.innerHTML = " > " + numerosPalpite.toString();
+        }
+
+        // Observando numeros adicionados
+        function validarPalpite(target) {
+            const qntNum = target.querySelectorAll("div").length;
+            const btnConsultar = document.querySelector("button.btn-consultar");
+
+            if (qntNum === 6) {
+                btnConsultar.style.display = "block";
+                btnConsultar.addEventListener("click",apiResultadosMega,false);
+            } else {
+                btnConsultar.style.display = "none";
+                btnConsultar.removeEventListener("click",apiResultadosMega,false);
+            }
+        }
+
+        // API Consultar resultados
+        function apiResultadosMega() {
+            var myHeaders = new Headers();
+            myHeaders.append("Content-Type", "application/json");
+
+            var raw = JSON.stringify( numerosPalpite );
+
+            var requestOptions = {
+                method: 'POST',
+                headers: myHeaders,
+                body: raw,
+                redirect: 'follow'
+            };
+
+            fetch("https://meupalpite.vercel.app/palpite", requestOptions)
+                .then(response => response.text())
+                .then(result => console.log(result))
+                .catch(error => console.log('error', error));
         }
 
     </script>
-    
+
 </body>
+
 </html>
