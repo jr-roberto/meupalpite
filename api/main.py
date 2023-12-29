@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 import pandas as pd
 
 # BASE RESULTADOS
@@ -11,6 +12,7 @@ for i in df:
     i["num_sorteados"] = (i["Bola1"],i["Bola2"],i["Bola3"],i["Bola4"],i["Bola5"],i["Bola6"])
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route("/")
 def index():
