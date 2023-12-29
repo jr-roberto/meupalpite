@@ -18,6 +18,7 @@
         <div class="palpite">
             <h2 class="title">Meu palpite <span id="numeros-palpite"></span></h2>
             <div class="numeros"></div>
+            <span class="bloquear-display"></span>
         </div>
 
         <div class="globo">
@@ -96,15 +97,15 @@
 
             if (qntNum === 6) {
                 btnConsultar.style.display = "block";
-                btnConsultar.addEventListener("click",apiResultadosMega,false);
+                btnConsultar.addEventListener("click",()=>{ apiResultadosMega(btnConsultar) },false);
             } else {
                 btnConsultar.style.display = "none";
-                btnConsultar.removeEventListener("click",apiResultadosMega,false);
+                btnConsultar.removeEventListener("click",()=>{ apiResultadosMega(btnConsultar) },false);
             }
         }
 
         // API Consultar resultados
-        function apiResultadosMega() {
+        function apiResultadosMega(button_action) {
             var myHeaders = new Headers();
             myHeaders.append("Content-Type", "application/json");
 
@@ -123,7 +124,14 @@
                 .then(response => response.json())
                 .then(result => console.log(result))
                 .catch(error => console.log('error', error));
+        
+            
+            button_action.style.display = "none";
         }
+
+
+
+        
 
     </script>
 
