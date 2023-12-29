@@ -22,10 +22,9 @@ def index():
 def resultados():
     return jsonify(df)
 
-@app.route("/palpite")
+@app.route("/palpite", methods=["POST"])
 def palpite():
     palpite_num = request.get_json()
-  
     resultados_mega = df
 
     for item in resultados_mega:
