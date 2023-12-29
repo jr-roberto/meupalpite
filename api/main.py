@@ -37,7 +37,20 @@ def palpite():
 
     resultados_mega = [ i for i in resultados_mega if i["qnt_acerto"] != 0 ]
 
-    return jsonify(resultados_mega)
+    resultados_mega_fim=[]
+    maior_num_acertos = []
+    for item in resultados_mega:
+        if item not in maior_num_acertos:
+            maior_num_acertos.append(item["qnt_acerto"])
+        
+        for num in maior_num_acertos:
+            result = [ i for i in resultados_mega if i["qnt_acerto"] != num ]
+            resultados_mega_fim.append({
+                "maior_num_acertos":num,
+                "result":result
+            })
+
+    return jsonify(resultados_mega_fim)
 
 if __name__=='__main__':
     app.run(debug=True)
