@@ -187,7 +187,7 @@ span.bloquear-display {
     display: flex;
     flex-direction: column;
     width: 100%;
-    max-width: 300px;
+    max-width: 350px;
     border: solid 1px gray;
     padding: 10px;
     margin: 0 auto;
