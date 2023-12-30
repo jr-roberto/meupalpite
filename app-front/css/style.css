@@ -97,3 +97,42 @@ span.bloquear-display {
     top: 0;
     display: none;
 }
+
+.lista-resultados {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.lista-resultados .lista {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.lista-resultados .lista .lista-item {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    gap: 5px;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.lista-resultados .lista .item-text-top {
+    display: flex;
+    justify-content: space-between;
+    font-size: large;
+}
+
+
+.lista-resultados .lista .item-text-botton {
+    font-size: small;
+} 
+
+.texto-resultado {
+    padding: 10px;
+    font-size: large;
+    text-align: center;
+}
+
+

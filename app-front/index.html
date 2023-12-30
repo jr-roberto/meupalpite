@@ -37,7 +37,10 @@
         const bolas = document.querySelector("#bolas > .numeros");
         const palpite = document.querySelector("div.palpite > .numeros");
         const numerosPalpiteView = document.getElementById("numeros-palpite");
+        const btnConsultar = document.querySelector("button.btn-consultar");
         let numerosPalpite = [];
+        
+        btnConsultar.addEventListener("click",()=>{ apiResultadosMega(btnConsultar) },false);
 
         // cria uma nova instância de observador
         var observer = new MutationObserver(function (mutations) {
@@ -92,20 +95,21 @@
 
         // Observando numeros adicionados
         function validarPalpite(target) {
+
             const qntNum = target.querySelectorAll("div").length;
-            const btnConsultar = document.querySelector("button.btn-consultar");
 
             if (qntNum === 6) {
                 btnConsultar.style.display = "block";
-                btnConsultar.addEventListener("click",()=>{ apiResultadosMega(btnConsultar) },false);
             } else {
                 btnConsultar.style.display = "none";
-                btnConsultar.removeEventListener("click",()=>{ apiResultadosMega(btnConsultar) },false);
             }
         }
 
         // API Consultar resultados
         function apiResultadosMega(button_action) {
+            
+            const blockPalpite = document.querySelector("span.bloquear-display");
+
             var myHeaders = new Headers();
             myHeaders.append("Content-Type", "application/json");
 
@@ -122,16 +126,104 @@
 
             fetch("https://meupalpite.vercel.app/palpite", requestOptions)
                 .then(response => response.json())
-                .then(result => console.log(result))
+                .then(result => {
+                    const resultJson = JSON.stringify(result);
+                    localStorage.resultado_api = resultJson;
+                    setTimeout(renderResult,500);
+                })
                 .catch(error => console.log('error', error));
         
             
             button_action.style.display = "none";
+            bolas.parentElement.style.display = "none";
+            bolas.parentElement.parentElement.querySelector(".title").innerText = "Resultado";
+            blockPalpite.style.display = "block";
         }
 
+        function renderResult() {
 
+            const jsonObject = JSON.parse(localStorage.resultado_api);
+            const jsonObjectNumAcertos=[];
+            const listNumAcerto = [];
 
-        
+            jsonObject.forEach((item)=>{
+                const numAcertos = item.qnt_acerto;
+
+                if ( !listNumAcerto.includes(numAcertos) ) {
+                    listNumAcerto.push(numAcertos);
+                }
+                
+            });
+
+            listNumAcerto.sort(function(a,b) { return b - a });
+
+            listNumAcerto.forEach((item)=>{
+                let totalJogos = 0;
+                let listItem = [];
+
+                jsonObject.map(i => {
+                    if ( i.qnt_acerto === item ) {
+                        ++totalJogos;
+                        listItem.push(i);
+                    }
+                });
+
+                jsonObjectNumAcertos.push({
+                    num_acertos:item,
+                    total_jogos:totalJogos,
+                    lista_resultados:listItem
+                });
+            });
+
+            localStorage.resultado_api_detalhes = JSON.stringify(jsonObjectNumAcertos);
+
+            criarListaResultado();
+        }
+
+        function criarListaResultado() {
+            const resultado_api_detalhes = JSON.parse(localStorage.resultado_api_detalhes);
+
+            const listResultados = document.createElement("div");
+            listResultados.className = "lista-resultados";
+            listResultados.id = "lista-resultados";
+
+            const texto = document.createElement("span");
+            texto.className = "texto-resultado";
+            texto.innerText = "Veja os dados historicos da Mega-Sena em relação ao seu palpite!";
+
+            const lista = document.createElement("div");
+            lista.className = "lista";
+
+            console.log(resultado_api_detalhes);
+
+            resultado_api_detalhes.forEach(resultado=>{
+                const item = addItemResultado(resultado);
+                lista.appendChild(item);
+            });
+
+            listResultados.appendChild(texto);
+            listResultados.appendChild(lista);
+            bolas.parentElement.parentElement.appendChild(listResultados);
+        }
+
+        function addItemResultado(i) {
+            const item = document.createElement("div");
+            item.className="lista-item";
+            item.id = i.num_acertos;
+
+            const itemTextTop = document.createElement("span");
+            itemTextTop.className="item-text-top";
+            itemTextTop.innerHTML=`<strong>Quantidade de numeros acerto</strong><span>${i.num_acertos}</span>`
+
+            const itemTextBottom = document.createElement("span");
+            itemTextBottom.className="item-text-botton";
+            itemTextBottom.innerText=`Foram encontrados ${i.total_jogos} jogos em que houve acerto de ${i.num_acertos} numeros do palpite.`
+            
+            item.appendChild(itemTextTop);
+            item.appendChild(itemTextBottom);
+
+            return item;
+        }
 
     </script>
 
