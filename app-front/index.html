@@ -115,8 +115,6 @@
 
             var raw = JSON.stringify( numerosPalpite );
 
-            console.log(raw);
-
             var requestOptions = {
                 method: 'POST',
                 headers: myHeaders,
@@ -136,11 +134,13 @@
             
             button_action.style.display = "none";
             bolas.parentElement.style.display = "none";
-            bolas.parentElement.parentElement.querySelector(".title").innerText = "Resultado";
+            bolas.parentElement.parentElement.querySelector(".title").innerText = "Aguarde...";
             blockPalpite.style.display = "block";
         }
 
         function renderResult() {
+
+            bolas.parentElement.parentElement.querySelector(".title").innerText = "Resultado";
 
             const jsonObject = JSON.parse(localStorage.resultado_api);
             const jsonObjectNumAcertos=[];
@@ -194,8 +194,6 @@
             const lista = document.createElement("div");
             lista.className = "lista";
 
-            console.log(resultado_api_detalhes);
-
             resultado_api_detalhes.forEach(resultado=>{
                 const item = addItemResultado(resultado);
                 lista.appendChild(item);
@@ -222,7 +220,101 @@
             item.appendChild(itemTextTop);
             item.appendChild(itemTextBottom);
 
+            item.addEventListener("click",()=>{ listaJogosPorQntAcerto(i.num_acertos,item) });
+
             return item;
+        }
+
+        function listaJogosPorQntAcerto(num_acertos,element) {
+            const resultado_api_detalhes = JSON.parse(localStorage.resultado_api_detalhes);
+            let result;
+
+            
+            resultado_api_detalhes.map(i => {
+                if ( i.num_acertos === num_acertos ) {
+                    result = i;
+                }
+            });
+
+            const globo = element.parentElement.parentElement.parentElement;
+
+            const popup = document.createElement("div");
+            popup.className="popup";
+
+            const conteudo = document.createElement("div");
+            conteudo.className="popup-conteudo";
+
+            const btnClose = document.createElement("button");
+            btnClose.className = "popup-btn-fechar";
+            btnClose.innerText = "X";
+            btnClose.setAttribute("onclick","fecharPopUp(this)")
+
+            popup.appendChild(conteudo);            
+
+            const lista = document.createElement("div");
+            lista.className="popup-lista";
+
+            const title = document.createElement("div");
+            title.className="popup-title";
+            title.innerText=`Quantidade de acertos ${result.num_acertos}, Total de jogos ${result.total_jogos}`;
+
+            conteudo.appendChild(btnClose);
+            conteudo.appendChild(title);
+            conteudo.appendChild(lista);
+
+            // adicionando itens a lista
+            result.lista_resultados.forEach((jogo)=>{
+
+                const itemLista = document.createElement("div");
+                itemLista.className="popup-lista-item";
+
+                const itemListaTop = document.createElement("span");
+                itemListaTop.className = "popup-lista-item-top";
+                itemListaTop.innerHTML=`
+                <span>${jogo['Data do Sorteio']}</span><span>${jogo['Concurso']}</<span>
+                `
+                
+                const itemListaBotton = document.createElement("span");
+                itemListaBotton.className = "popup-lista-item-botton";
+                itemListaBotton.innerHTML = `
+                    <span>${jogo['Bola1']}</span>
+                    <span>${jogo['Bola2']}</span>
+                    <span>${jogo['Bola3']}</span>
+                    <span>${jogo['Bola4']}</span>
+                    <span>${jogo['Bola5']}</span>
+                    <span>${jogo['Bola6']}</span>
+                `
+
+                itemLista.appendChild(itemListaTop)
+                itemLista.appendChild(itemListaBotton);
+
+                lista.appendChild(itemLista);
+            });
+            
+            globo.appendChild(popup);
+            setTimeout(realceBolaAcerto,1000);
+        }
+
+        function fecharPopUp(btn_element) {
+            btn_element.parentElement.parentElement.remove();
+        }
+
+        function realceBolaAcerto() { 
+            const lista = document.querySelector("div.popup-lista");
+            const rows = lista.querySelectorAll(".popup-lista-item");
+
+            rows.forEach((row)=>{
+                const bolas = row.querySelectorAll(".popup-lista-item-botton > span");
+
+                bolas.forEach((bola)=>{
+                    let n = Number(bola.innerText);
+
+                    if (numerosPalpite.includes(n)) {
+                        bola.className="focus";
+                    }
+                })
+
+            });
         }
 
     </script>
