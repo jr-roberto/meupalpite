@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_templates
 from flask_cors import CORS
 import pandas as pd
 
@@ -38,6 +38,10 @@ def palpite():
     resultados_mega = [ i for i in resultados_mega if i["qnt_acerto"] != 0 ]
 
     return jsonify(resultados_mega)
+
+@app.route("/teste")
+def teste():
+    return render_templates("index.html")
 
 if __name__=='__main__':
     app.run(debug=True)
