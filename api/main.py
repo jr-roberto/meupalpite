@@ -39,9 +39,5 @@ def palpite():
 
     return jsonify(resultados_mega)
 
-@app.route("/teste")
-def teste():
-    return render_templates("index.html")
-
 if __name__=='__main__':
     app.run(debug=True)
